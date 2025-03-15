@@ -46,17 +46,17 @@ def login():
 def autenticar():
     if 'alohomora' == request.form['senha']:
         session['usuario_logado'] = request.form['usuario']
-        flash(session['usuario_logado'] + ' logado com sucesso!')
+        flash(session['usuario_logado'] + ' logado com sucesso!', 'success')
         return redirect('/')
     else:
-        flash('Erro ao logar.')
+        flash('Erro ao logar.', 'error')
         return redirect('/login')
 
 
 @app.route('/logout')
 def logout():
     session['usuario_logado'] = None
-    flash('Logout realizado com sucesso.')
+    flash('Logout realizado com sucesso.', 'success')
     return redirect('/')
 
 
