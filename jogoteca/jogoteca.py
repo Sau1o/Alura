@@ -1,8 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 
-app = Flask(__name__)
-app.secret_key = 'alura'
-
 
 class Jogo:
     def __init__(self, nome, categoria, console):
@@ -15,6 +12,25 @@ jogo1 = Jogo('Tetris', 'Puzzle', 'Atari')
 jogo2 = Jogo('God of War', 'Rack n Slash', 'PS2')
 jogo3 = Jogo('Mortal Kombat', 'Luta', 'PS2')
 lista = [jogo1, jogo2, jogo3]
+
+
+class Usuario:
+    def __init__(self, nome, nickname, senha):
+        self.nome = nome
+        self.nickname = nickname
+        self.senha = senha
+
+
+usuario1 = Usuario('Guido Rossum', 'python', 'senha1')
+usuario2 = Usuario('Numpy', 'np', 'senha2')
+usuario3 = Usuario('Pandas', 'pd', 'senha3')
+
+usuarios = {usuario1.nickname: usuario1,
+            usuario2.nickname: usuario2,
+            usuario3.nickname: usuario3}
+
+app = Flask(__name__)
+app.secret_key = 'alura'
 
 
 @app.route('/')
@@ -47,11 +63,13 @@ def login():
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-    if 'alohomora' == request.form['senha']:
-        session['usuario_logado'] = request.form['usuario']
-        flash(session['usuario_logado'] + ' logado com sucesso!', 'success')
-        proxima_pagina = request.form['proxima']
-        return redirect(proxima_pagina)
+    if request.form['usuario'] in usuarios:
+        usuario = usuarios[request.form['usuario']]
+        if request.form['senha'] == usuario.senha:
+            session['usuario_logado'] = usuario.nickname
+            flash(usuario.nickname + ' logado com sucesso!', 'success')
+            proxima_pagina = request.form['proxima']
+            return redirect(proxima_pagina)
     else:
         flash('Erro ao logar.', 'error')
         return redirect(url_for('login'))
@@ -59,9 +77,13 @@ def autenticar():
 
 @app.route('/logout')
 def logout():
-    session['usuario_logado'] = None
-    flash('Logout realizado com sucesso.', 'success')
-    return redirect(url_for('index'))
+    if session['usuario_logado']:
+        session['usuario_logado'] = None
+        flash('Logout realizado com sucesso.', 'success')
+        return redirect(url_for('index'))
+    else:
+        flash('Nenhum usuário logado.', 'light')
+        return redirect(url_for('index'))
 
 
 app.run(debug=True)
